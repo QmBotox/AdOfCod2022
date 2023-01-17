@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,118 +17,140 @@ public class Day11 {
         System.out.println(part2(lines));
     }
 
-    private static String part1(List<String> strings) {
-        List<String> trueMove = new ArrayList<>();
-        List<String> falseMove = new ArrayList<>();
-        List<Monkey> monkeys = new ArrayList<>();
-        int currentMonkey = 0;
-        for (String string : strings) {
-            String[] word = string.split(" ");
-            if (word[0].equals("Monkey")) {
-                Monkey monkey = new Monkey();
-                monkeys.add(monkey);
-                monkeys.get(currentMonkey).items = new ArrayList<>();
-                currentMonkey++;
-            }
-        }
-        currentMonkey = 0;
-        for (String string : strings) {
-            String[] word = string.split(" ");
-            if (string.length() > 1 && word[0].equals("")) {
+    static Monkey parse(List<String> monkey){
+        Monkey result = new Monkey();
+        for (int i = 0; i<monkey.size(); i++){
+            String[] word = monkey.get(i).split(" ");
+            if (word.length > 2) {
                 if (word[2].equals("Starting")) {
-                    for (int i = 4; i < string.split(" ").length; i++) {
-                        monkeys.get(currentMonkey).items.add(word[i].replaceAll(",", ""));
+                    for (int j = 4; j < monkey.get(i).split(" ").length; j++) {
+                        result.items.add(Long.valueOf(word[j].replaceAll(",", "")));
                     }
                 }
-                for (int i = 0; i < monkeys.get(currentMonkey).items.size(); i++) {
-                    if (word[2].equals("Operation:")) {
-                        String newWorry = operation(monkeys.get(currentMonkey).items.get(i), word[6], word[7]);
-                        monkeys.get(currentMonkey).items.set(i, newWorry);
-                    }
-                    if (word[2].equals("Test:")) {
-                        if (test(monkeys.get(currentMonkey).items.get(i), word[5])) {
-                            trueMove.add(monkeys.get(currentMonkey).items.get(i));
-                        } else {
-                            falseMove.add(monkeys.get(currentMonkey).items.get(i));
-                        }
-                    }
-                    if (word.length > 5 && word[5].equals("true:") && trueMove.size() > 0) {
-                        monkeys.get(Integer.parseInt(word[9])).items.addAll(trueMove);
-                        trueMove.removeAll(trueMove);
-                    }
-                    if (word.length > 5 && word[5].equals("false:") && falseMove.size() > 0) {
-                        monkeys.get(Integer.parseInt(word[9])).items.addAll(falseMove);
-                        falseMove.removeAll(falseMove);
-                        monkeys.get(currentMonkey).items.removeAll(monkeys.get(currentMonkey).items);
-                        currentMonkey++;
-                        break;
-                    }
+                if (word[2].equals("Operation:")) {
+                    result.operation = word[6];
+                    result.change = word[7];
                 }
+                if (word[2].equals("Test:")) {
+                    result.divisible = Long.valueOf(word[5]);
+                }
+                if (word.length > 5 && word[5].equals("true:")) {
+                    result.ifTrue = Integer.parseInt(word[9]);
+                }
+                if (word.length > 5 && word[5].equals("false:")) {
+                    result.ifFalse = Integer.parseInt(word[9]);
+                }
+                result.times = 0;
             }
         }
-        for (int round = 0; round<19; round++) {
-            for (String string : strings) {
-                String[] word = string.split(" ");
-                if (word[0].equals("Monkey")){
-                    currentMonkey = Integer.parseInt(word[1].replaceAll(":",""));
-                }
-                if (word.length > 5 && !word[2].equals("Starting"))
-                    for (int i = 0; i < monkeys.get(currentMonkey).items.size(); i++) {
-                        if (word[2].equals("Operation:")) {
-                            String newWorry = operation(monkeys.get(currentMonkey).items.get(i), word[6], word[7]);
-                            monkeys.get(currentMonkey).items.set(i, newWorry);
-                        }
-                        if (word[2].equals("Test:")) {
-                            if (test(monkeys.get(currentMonkey).items.get(i), word[5])) {
-                                trueMove.add(monkeys.get(currentMonkey).items.get(i));
-                            } else {
-                                falseMove.add(monkeys.get(currentMonkey).items.get(i));
-                            }
-                        }
-                        if (word.length > 5 && word[5].equals("true:") && trueMove.size() > 0) {
-                            monkeys.get(Integer.parseInt(word[9])).items.addAll(trueMove);
-                            trueMove.removeAll(trueMove);
-                        }
-                        if (word.length > 5 && word[5].equals("false:") && falseMove.size() > 0) {
-                            monkeys.get(Integer.parseInt(word[9])).items.addAll(falseMove);
-                            falseMove.removeAll(falseMove);
-                            monkeys.get(currentMonkey).items.removeAll(monkeys.get(currentMonkey).items);
-                            break;
-                        }
-                    }
+        return result;
+    }
+    private static String part1(List<String> strings) {
+        /*    List<Monkey> monkeys = new ArrayList<>();
+        int currentMonkey = 0;
+        for (int i = 0; i<strings.size(); i = i+7){
+            List<String> monkey = new ArrayList<>();
+            for(int j = 0; j<6; j++) {
+                monkey.add(strings.get(i+j));
+            }
+            monkeys.add(parse(monkey));
+        }
+        for (int i = 0; i<20; i++){
+            for (Monkey monkey: monkeys){
+                monkey.turn(monkeys);
             }
         }
-        System.out.println(monkeys.get(0).items);
-        System.out.println(monkeys.get(1).items);
-        return "";
+        long[] bussines = new long[monkeys.size()];
+        for (int i = 0; i<monkeys.size(); i++){
+            bussines[i] = monkeys.get(i).times;
+        }
+        Arrays.sort(bussines);
+
+         */
+        return "";//Long.toString(bussines[monkeys.size()-1]*bussines[monkeys.size()-2]);
     }
 
     private static String part2(List<String> strings) {
-        return "";
+        List<Monkey> monkeys = new ArrayList<>();
+        int currentMonkey = 0;
+        for (int i = 0; i<strings.size(); i = i+7){
+            List<String> monkey = new ArrayList<>();
+            for(int j = 0; j<6; j++) {
+                monkey.add(strings.get(i+j));
+            }
+            monkeys.add(parse(monkey));
+        }
+        for (int i = 0; i<1000; i++){
+            for (Monkey monkey: monkeys){
+                monkey.turn2(monkeys);
+            }
+        }
+        long[] bussines = new long[monkeys.size()];
+        for (int i = 0; i<monkeys.size(); i++){
+            bussines[i] = monkeys.get(i).times;
+            System.out.println(bussines[i]);
+        }
+
+        Arrays.sort(bussines);
+        return "";//Long.toString(bussines[monkeys.size()-1]*bussines[monkeys.size()-2]);
     }
 
     private static class Monkey {
-        List<String> items;
-    }
 
-    private static boolean test(String worry, String divisible) {
-        if (Integer.parseInt(worry) % Integer.parseInt(divisible) == 0) {
-            return true;
-        }
-        return false;
-    }
 
-    private static String operation(String old, String oper, String change) {
-        int newWorry = 0;
-        if (change.equals("old")) {
-            change = old;
+        List<Long> items = new ArrayList<>();
+        String operation;
+        String change;
+        Long divisible;
+        int ifTrue;
+        int ifFalse;
+
+        long times;
+
+        private long operation(long value) {
+            times++;
+            long newWorry = 0;
+            if (change.equals("old")) {
+                return value * value;
+            }
+            switch (operation) {
+                case "*" -> newWorry = value * Integer.parseInt(change);
+                case "+" -> newWorry = value + Integer.parseInt(change);
+            }
+            return newWorry;
         }
-        switch (oper) {
-            case "*" -> newWorry = Integer.parseInt(old) * Integer.parseInt(change);
-            case "+" -> newWorry = Integer.parseInt(old) + Integer.parseInt(change);
+
+        private boolean test(long value) {
+            if (value % divisible == 0) {
+                return true;
+            }
+            return false;
         }
-        newWorry = Math.round(newWorry / 3);
-        return Integer.toString(newWorry);
+
+        void turn(List<Monkey> monkeys) {
+            for (long item : items) {
+                long newValue = operation(item);
+                newValue = newValue / 3;
+                if (test(newValue)) {
+                    monkeys.get(ifTrue).items.add(newValue);
+                } else {
+                    monkeys.get(ifFalse).items.add(newValue);
+                }
+            }
+            items.removeAll(items);
+        }
+        void turn2(List<Monkey> monkeys) {
+            for (long item : items) {
+                long newValue = operation(item);
+               // newValue = newValue / 3;
+                if (test(newValue)) {
+                    monkeys.get(ifTrue).items.add(newValue);
+                } else {
+                    monkeys.get(ifFalse).items.add(newValue);
+                }
+            }
+            items.removeAll(items);
+        }
     }
 }
 
